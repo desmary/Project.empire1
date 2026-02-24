@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
@@ -15,7 +14,6 @@ namespace ImperialHR.Api.Migrations
     [Migration("20260205114252_InitialCreate")]
     partial class InitialCreate
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -26,45 +24,119 @@ namespace ImperialHR.Api.Migrations
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("ImperialHR.Api.Models.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FullName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ManagerId")
-                        .HasColumnType("int");
+                b.Property<int?>("ManagerId")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.Property<string>("PasswordHash")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ManagerId");
+                b.Property<int>("Role")
+                    .HasColumnType("int");
 
-                    b.ToTable("Employees");
-                });
+                b.HasKey("Id");
+
+                b.HasIndex("Email")
+                    .IsUnique();
+
+                b.HasIndex("ManagerId");
+
+                b.ToTable("Employees");
+            });
+
+            modelBuilder.Entity("ImperialHR.Api.Models.Request", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("ApproverId")
+                    .HasColumnType("int");
+
+                b.Property<string>("Comment")
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("EmployeeId")
+                    .HasColumnType("int");
+
+                b.Property<DateTime>("From")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("Status")
+                    .HasColumnType("int");
+
+                b.Property<DateTime>("To")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("Type")
+                    .HasColumnType("int");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("ApproverId");
+
+                b.HasIndex("EmployeeId");
+
+                b.ToTable("Requests");
+            });
 
             modelBuilder.Entity("ImperialHR.Api.Models.Employee", b =>
-                {
-                    b.HasOne("ImperialHR.Api.Models.Employee", "Manager")
-                        .WithMany("Subordinates")
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+            {
+                b.HasOne("ImperialHR.Api.Models.Employee", "Manager")
+                    .WithMany("Subordinates")
+                    .HasForeignKey("ManagerId")
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Manager");
-                });
+                b.Navigation("Manager");
+            });
+
+            modelBuilder.Entity("ImperialHR.Api.Models.Request", b =>
+            {
+                b.HasOne("ImperialHR.Api.Models.Employee", "Approver")
+                    .WithMany("Approvals")
+                    .HasForeignKey("ApproverId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("ImperialHR.Api.Models.Employee", "Employee")
+                    .WithMany("Requests")
+                    .HasForeignKey("EmployeeId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Approver");
+                b.Navigation("Employee");
+            });
 
             modelBuilder.Entity("ImperialHR.Api.Models.Employee", b =>
-                {
-                    b.Navigation("Subordinates");
-                });
+            {
+                b.Navigation("Approvals");
+                b.Navigation("Requests");
+                b.Navigation("Subordinates");
+            });
 #pragma warning restore 612, 618
         }
     }

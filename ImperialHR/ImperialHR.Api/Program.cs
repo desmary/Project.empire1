@@ -1,22 +1,20 @@
-﻿using System.Text;
+﻿// Program.cs
+using System.Text;
+using ImperialHR.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ImperialHR.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =====================
-// 1) Controllers + Swagger
-// =====================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ImperialHR.Api", Version = "v1" });
 
-    // ✅ Swagger Authorize (Bearer token)
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -43,10 +41,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// =====================
-// 2) CORS (щоб фронт міг стукатись в API)
-// =====================
-// Найпростіший варіант: дозволяємо все (для курсової/локально ОК)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -54,41 +48,29 @@ builder.Services.AddCors(options =>
         policy
             .AllowAnyHeader()
             .AllowAnyMethod()
-            // якщо не використовуєш cookies — можна прибрати AllowCredentials
             .AllowCredentials()
             .SetIsOriginAllowed(_ => true);
     });
 });
 
-// =====================
-// 3) Database (EF Core)
-// =====================
-// appsettings.json має містити ConnectionStrings:Default
-// приклад: "Default": "Server=(localdb)\\MSSQLLocalDB;Database=ImperialHR;Trusted_Connection=True;TrustServerCertificate=True"
+// ✅ ВАЖЛИВО: "DefaultConnection" (а не "Default")
 builder.Services.AddDbContext<ImperialHrDbContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// =====================
-// 4) JWT Auth
-// =====================
-// appsettings.json має містити:
-// "Jwt": { "Key": "...", "Issuer": "ImperialHR", "Audience": "ImperialHR" }
 var jwtKey = builder.Configuration["Jwt:Key"];
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ImperialHR";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "ImperialHR";
 
 if (string.IsNullOrWhiteSpace(jwtKey))
-{
     throw new Exception("Jwt:Key не заданий в appsettings.json");
-}
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false; // локально ок
+        options.RequireHttpsMetadata = false;
         options.SaveToken = true;
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -109,14 +91,8 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// =====================
-// Build app
-// =====================
 var app = builder.Build();
 
-// =====================
-// Pipeline
-// =====================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -125,13 +101,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// ✅ порядок важливий
 app.UseRouting();
 
-app.UseCors("Frontend");          // <-- ДО auth
+app.UseCors("Frontend");
 
-app.UseAuthentication();          // <-- спочатку Auth
-app.UseAuthorization();           // <-- потім Authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

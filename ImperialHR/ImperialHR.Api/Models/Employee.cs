@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Models/Employee.cs
+using System.ComponentModel.DataAnnotations;
 
 namespace ImperialHR.Api.Models;
 
@@ -9,7 +10,7 @@ public class Employee
     [Required]
     public string FullName { get; set; } = string.Empty;
 
-    // ----- Auth -----
+    
     [Required]
     public string Email { get; set; } = string.Empty;
 
@@ -18,12 +19,14 @@ public class Employee
 
     public Role Role { get; set; }
 
-    // ----- Hierarchy -----
+   
     public int? ManagerId { get; set; }
+    
     public Employee? Manager { get; set; }
-
+    
     public List<Employee> Subordinates { get; set; } = new();
 
-    // ----- Requests -----
+    
     public List<Request> Requests { get; set; } = new();
+    public List<Request> Approvals { get; set; } = new();
 }

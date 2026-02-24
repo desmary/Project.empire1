@@ -139,3 +139,4 @@ D:\Проєкт\ImperialHR\ImperialHR.Api\obj\Debug\net8.0\ImperialHR.Api.genrun
 D:\Проєкт\ImperialHR\ImperialHR.Api\obj\Debug\net8.0\ref\ImperialHR.Api.dll
 D:\Проєкт\ImperialHR\ImperialHR.Api\bin\Debug\net8.0\BCrypt.Net-Next.dll
 D:\Проєкт\ImperialHR\ImperialHR.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Проєкт\ImperialHR\ImperialHR.Api\obj\Debug\net8.0\ImperialHR.Api.sourcelink.json

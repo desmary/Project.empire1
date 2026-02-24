@@ -1,4 +1,5 @@
-﻿namespace ImperialHR.Api.Dtos
+﻿// Dtos/DecisionDto.cs
+namespace ImperialHR.Api.Dtos
 {
     public class DecisionDto
     {

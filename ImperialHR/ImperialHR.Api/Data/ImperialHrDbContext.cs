@@ -1,4 +1,5 @@
-﻿using ImperialHR.Api.Models;
+﻿// Data/ImperialHRDbContext.cs
+using ImperialHR.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ImperialHR.Api.Data;
@@ -22,6 +23,18 @@ public class ImperialHrDbContext : DbContext
             .HasOne(e => e.Manager)
             .WithMany(m => m.Subordinates)
             .HasForeignKey(e => e.ManagerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Request>()
+            .HasOne(r => r.Employee)
+            .WithMany(e => e.Requests)
+            .HasForeignKey(r => r.EmployeeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Request>()
+            .HasOne(r => r.Approver)
+            .WithMany(e => e.Approvals)
+            .HasForeignKey(r => r.ApproverId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
