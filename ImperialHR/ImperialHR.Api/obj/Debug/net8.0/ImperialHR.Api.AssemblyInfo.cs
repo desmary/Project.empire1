@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ImperialHR.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e323d2cb762648aab919131b809adf56fd87992d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b769e64fc733982a442cf8b979b6c6923102adc4")]
 [assembly: System.Reflection.AssemblyProductAttribute("ImperialHR.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ImperialHR.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

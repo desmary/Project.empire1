@@ -5,62 +5,43 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ImperialHR.Api.Migrations
 {
-    /// <inheritdoc />
     public partial class AddRequests : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Requests",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeId = table.Column<int>(type: "int", nullable: false),
-                    ApproverId = table.Column<int>(type: "int", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    DecisionComment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DecidedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Requests", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Requests_Employees_ApproverId",
-                        column: x => x.ApproverId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Requests_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
+            migrationBuilder.Sql(@"
+IF OBJECT_ID(N'[dbo].[Requests]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[Requests] (
+        [Id] INT NOT NULL IDENTITY(1,1),
+        [EmployeeId] INT NOT NULL,
+        [ApproverId] INT NOT NULL,
+        [Type] INT NOT NULL,
+        [Status] INT NOT NULL,
+        [From] DATETIME2 NOT NULL,
+        [To] DATETIME2 NOT NULL,
+        [Comment] NVARCHAR(MAX) NULL,
+        [CreatedAt] DATETIME2 NOT NULL,
+        [UpdatedAt] DATETIME2 NOT NULL,
+        CONSTRAINT [PK_Requests] PRIMARY KEY CLUSTERED ([Id] ASC),
+        CONSTRAINT [FK_Requests_Employees_EmployeeId] FOREIGN KEY ([EmployeeId]) REFERENCES [dbo].[Employees]([Id]) ON DELETE NO ACTION,
+        CONSTRAINT [FK_Requests_Employees_ApproverId] FOREIGN KEY ([ApproverId]) REFERENCES [dbo].[Employees]([Id]) ON DELETE NO ACTION
+    );
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Requests_ApproverId",
-                table: "Requests",
-                column: "ApproverId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Requests_EmployeeId",
-                table: "Requests",
-                column: "EmployeeId");
+    CREATE INDEX [IX_Requests_EmployeeId] ON [dbo].[Requests]([EmployeeId]);
+    CREATE INDEX [IX_Requests_ApproverId] ON [dbo].[Requests]([ApproverId]);
+END
+");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Requests");
+            migrationBuilder.Sql(@"
+IF OBJECT_ID(N'[dbo].[Requests]', N'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Requests];
+END
+");
         }
     }
 }

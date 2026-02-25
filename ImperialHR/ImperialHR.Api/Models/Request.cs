@@ -1,44 +1,24 @@
-﻿// Models/Request.cs
-namespace ImperialHR.Api.Models
+﻿namespace ImperialHR.Api.Models;
+
+public class Request
 {
-    public enum RequestType
-    {
-        AnnualLeave = 0,
-        SickLeave = 1,
-        UnpaidLeave = 2,
-        StudyLeave = 3
-    }
+    public int Id { get; set; }
 
-    public enum RequestStatus
-    {
-        Pending = 0,
-        ApprovedByLord = 1,
-        RejectedByLord = 2,
-        ApprovedByEmperor = 3,
-        RejectedByEmperor = 4
-    }
+    public int EmployeeId { get; set; }
+    public Employee? Employee { get; set; }
 
-    public class Request
-    {
-        public int Id { get; set; }
+    public int? ApproverId { get; set; }
+    public Employee? Approver { get; set; }
 
-        public int EmployeeId { get; set; }
-        public Employee? Employee { get; set; }
+    public RequestType Type { get; set; }
+    public RequestStatus Status { get; set; }
 
-        public int ApproverId { get; set; }
-        public Employee? Approver { get; set; }
+    public DateTime From { get; set; }
+    public DateTime To { get; set; }
 
-        public RequestType Type { get; set; }
+    public string? Comment { get; set; }
 
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
-
-        public string? Comment { get; set; }
-
-        public RequestStatus Status { get; set; } = RequestStatus.Pending;
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 

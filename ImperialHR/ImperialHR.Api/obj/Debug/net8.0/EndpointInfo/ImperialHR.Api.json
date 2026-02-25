@@ -408,7 +408,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "http",
-        "description": "Встав так: Bearer {твій JWT токен}",
+        "description": "Встав: Bearer {твій JWT токен}",
         "scheme": "Bearer",
         "bearerFormat": "JWT"
       }

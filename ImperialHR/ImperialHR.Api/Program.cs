@@ -1,5 +1,4 @@
-﻿// Program.cs
-using System.Text;
+﻿using System.Text;
 using ImperialHR.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -11,18 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Swagger + JWT
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ImperialHR.Api", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
+        Description = "Встав: Bearer {твій JWT токен}",
         Name = "Authorization",
+        In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Встав так: Bearer {твій JWT токен}"
+        BearerFormat = "JWT"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -41,6 +41,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -53,18 +54,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ✅ ВАЖЛИВО: "DefaultConnection" (а не "Default")
-builder.Services.AddDbContext<ImperialHrDbContext>(opt =>
-{
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+// DATABASE
+builder.Services.AddDbContext<ImperialHrDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
+// JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ImperialHR";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "ImperialHR";
-
-if (string.IsNullOrWhiteSpace(jwtKey))
-    throw new Exception("Jwt:Key не заданий в appsettings.json");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -76,7 +74,7 @@ builder.Services
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!)),
 
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
@@ -93,14 +91,18 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var db = scope.ServiceProvider.GetRequiredService<ImperialHrDbContext>();
+    db.Database.EnsureDeleted();
+    db.Database.EnsureCreated();
 }
 
-app.UseHttpsRedirection();
+// Swagger (ЗАВЖДИ, не тільки Dev)
+app.UseSwagger();
+app.UseSwaggerUI();
 
+app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors("Frontend");

@@ -1,5 +1,4 @@
-﻿// Data/ImperialHRDbContext.cs
-using ImperialHR.Api.Models;
+﻿using ImperialHR.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ImperialHR.Api.Data;
@@ -15,26 +14,32 @@ public class ImperialHrDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Employee>()
-            .HasIndex(e => e.Email)
-            .IsUnique();
-
+        // Employees: самозв’язок Manager
         modelBuilder.Entity<Employee>()
             .HasOne(e => e.Manager)
-            .WithMany(m => m.Subordinates)
+            .WithMany()
             .HasForeignKey(e => e.ManagerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Request>()
-            .HasOne(r => r.Employee)
-            .WithMany(e => e.Requests)
-            .HasForeignKey(r => r.EmployeeId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Requests
+        modelBuilder.Entity<Request>(entity =>
+        {
+            entity.ToTable("Requests");
 
-        modelBuilder.Entity<Request>()
-            .HasOne(r => r.Approver)
-            .WithMany(e => e.Approvals)
-            .HasForeignKey(r => r.ApproverId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(r => r.Comment)
+                  .HasColumnType("nvarchar(max)");
+
+            // EmployeeId -> Employee
+            entity.HasOne(r => r.Employee)
+                  .WithMany() // НЕ вимагає Employee.Requests
+                  .HasForeignKey(r => r.EmployeeId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // ApproverId -> Approver
+            entity.HasOne(r => r.Approver)
+                  .WithMany() // НЕ вимагає Employee.Approvals
+                  .HasForeignKey(r => r.ApproverId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

@@ -1,8 +1,6 @@
-﻿// Dtos/DecisionDto.cs
-namespace ImperialHR.Api.Dtos
+﻿namespace ImperialHR.Api.Dtos;
+
+public class DecisionDto
 {
-    public class DecisionDto
-    {
-        public bool Approve { get; set; }
-    }
+    public bool Approve { get; set; }
 }

@@ -1,5 +1,4 @@
-﻿// Controllers/RequestsController.cs
-using ImperialHR.Api.Data;
+﻿using ImperialHR.Api.Data;
 using ImperialHR.Api.Dtos;
 using ImperialHR.Api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -28,18 +27,14 @@ public class RequestsController : ControllerBase
     }
 
     // POST /api/Requests
-    
     [HttpPost]
-    
     public async Task<IActionResult> Create([FromBody] CreateRequestDto dto)
     {
         var myId = GetMyId();
 
-        
         var me = await _db.Employees.FirstOrDefaultAsync(e => e.Id == myId);
         if (me == null) return Unauthorized("Employee not found");
 
-        
         if (me.ManagerId == null) return BadRequest("You have no manager (lord) assigned");
         if (dto.From >= dto.To) return BadRequest("From must be before To");
 
@@ -74,7 +69,6 @@ public class RequestsController : ControllerBase
 
     // GET /api/Requests/my
     [HttpGet("my")]
-    
     public async Task<IActionResult> My()
     {
         var myId = GetMyId();
@@ -129,10 +123,8 @@ public class RequestsController : ControllerBase
             return Ok(req);
         }
 
-        
         req.Status = RequestStatus.ApprovedByLord;
 
-        
         var emperor = await _db.Employees.FirstOrDefaultAsync(e => e.Role == Role.Emperor);
         if (emperor == null) return StatusCode(500, "Emperor not found");
 
@@ -182,9 +174,7 @@ public class RequestsController : ControllerBase
             return Ok(req);
         }
 
-        
         req.Status = RequestStatus.ApprovedByEmperor;
-
 
         if (dto.FinalFrom.HasValue && dto.FinalTo.HasValue)
         {
@@ -200,8 +190,6 @@ public class RequestsController : ControllerBase
     }
 
     // DELETE /api/Requests/{id}
-    // ✅ Emperor може видалити будь-яку заявку
-    // ✅ звичайний юзер може видалити тільки свою, і тільки якщо Pending
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
